@@ -7,8 +7,6 @@ class BudgetCreateSchema(BaseModel):
     name: str
     total_amount: float
     description: Optional[str]
-    created_at: datetime
-    updated_at: datetime
 
     class Config:
         from_attributes = True
@@ -16,6 +14,8 @@ class BudgetCreateSchema(BaseModel):
 
 class BudgetDetailSchema(BudgetCreateSchema):
     id: str
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

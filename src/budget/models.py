@@ -1,4 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
+import datetime
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from src.config import generate_uuid
 from src.database import Base
@@ -14,8 +15,12 @@ class BudgetModel(Base):
     name = Column(String, nullable=False)
     total_amount = Column(Integer, nullable=False, default=0)
     description = Column(String, nullable=True)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
+    created_at = Column(
+        DateTime, nullable=False, default=datetime.datetime.now(datetime.timezone.utc)
+    )
+    updated_at = Column(
+        DateTime, nullable=False, default=datetime.datetime.now(datetime.timezone.utc)
+    )
 
     user = relationship("UserModel", back_populates="budgets")
     transactions = relationship("TransactionModel", back_populates="budget")

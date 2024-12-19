@@ -93,7 +93,7 @@ class DebtPaymentRepository:
         new_debt_payment = DebtPaymentModel(
             debt_id=debt_payment.debt_id,
             transaction_id=transaction_id,
-            paymente_date=debt_payment.paymente_date,
+            payment_date=debt_payment.payment_date,
             amount_paid=debt_payment.amount_paid,
             installment_number=debt_payment.installment_number,
             status=debt_payment.status,

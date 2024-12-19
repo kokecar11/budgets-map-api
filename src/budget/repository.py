@@ -19,8 +19,7 @@ class BudgetRepository:
             user_id=user_id,
             name=budget.name,
             total_amount=budget.total_amount,
-            created_at=budget.created_at,
-            updated_at=budget.updated_at,
+            description=budget.description,
         )
         self.db.add(new_budget)
         self.db.commit()

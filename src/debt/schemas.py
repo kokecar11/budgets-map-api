@@ -21,7 +21,7 @@ class DebtPaymentDetailSchema(BaseModel):
     id: str
     transaction_id: str
     amount_paid: float
-    paymente_date: Optional[datetime]  # TODO: Cambiar a payment_date
+    payment_date: Optional[datetime]
     status: DebtStatus
     installment_number: int
 
@@ -55,7 +55,7 @@ class DebtPaymentCreateSchema(BaseModel):
     debt_id: str
     budget_id: str
     amount_paid: float
-    paymente_date: datetime
+    payment_date: datetime
     installment_number: int
     amount_paid: float
     status: DebtStatus

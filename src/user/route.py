@@ -6,6 +6,7 @@ from .schemas import (
     UserSignInSchema,
     SignInResponseSchema,
     SignOutSchema,
+    VerifyTokenSchema,
 )
 
 AuthRouter = APIRouter()
@@ -44,3 +45,14 @@ async def create_debt(user: UserSignInSchema, auth_service: AuthService = Depend
 async def create_debt(token: str, auth_service: AuthService = Depends()):
     new_user = await auth_service.sign_out(token=token)
     return new_user
+
+
+# @AuthRouter.post("/verify")
+# async def verify_token(
+#     verify_token: VerifyTokenSchema, auth_service: AuthService = Depends()
+# ):
+#     try:
+#         response = await auth_service.get_current_user(verify_token.token)
+#         return response
+#     except Exception as e:
+#         return {"error": str(e)}

@@ -25,7 +25,7 @@ class DebtService:
                 id=payment.id,
                 transaction_id=payment.transaction_id,
                 amount_paid=payment.amount_paid,
-                paymente_date=payment.paymente_date,
+                payment_date=payment.payment_date,
                 status=payment.status,
                 installment_number=payment.installment_number,
             )
@@ -123,7 +123,7 @@ class DebtPaymentService:
         transaction = TransactionCreateSchema(
             budget_id=debt_payment.budget_id,
             amount=debt_payment.amount_paid,
-            transaction_date=debt_payment.paymente_date,
+            transaction_date=debt_payment.payment_date,
             category="Debt Payment",
             description="Debt Payment",
         )

@@ -25,3 +25,7 @@ class SignInResponseSchema(BaseModel):
 
 class SignOutSchema(BaseModel):
     token: str
+
+
+class VerifyTokenSchema(BaseModel):
+    token: str

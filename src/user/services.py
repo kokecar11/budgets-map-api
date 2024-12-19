@@ -42,8 +42,10 @@ class AuthService:
     def __init__(
         self,
         user_service: UserService = Depends(),
+        user_repo: UserRepository = Depends(),
     ):
         self.user_service = user_service
+        self.user_repo = user_repo
         self.settings = get_settings()
         self.supabase = create_client(
             supabase_key=self.settings.SUPABASE_KEY,
@@ -120,16 +122,15 @@ class AuthService:
             response = self.supabase.auth.get_user(jwt=token)
             if response.user is None:
                 raise HTTPException(
-                    status_code=401,
-                    detail="Not valid credentialsssss",
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Not valid credentialsss",
                     headers={"WWW-Authenticate": "Bearer"},
                 )
-
             return response.user
         except Exception as e:
             print(e)
             raise HTTPException(
-                status_code=401,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Not valid credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
