@@ -1,5 +1,4 @@
-from sqlalchemy.orm import selectinload
-from src.dependecies import db_dependency
+from sqlalchemy.orm import Session, selectinload
 from src.settings import get_settings
 from .models import DebtModel, DebtPaymentModel
 from .schemas import DebtCreateSchema, DebtPaymentCreateSchema
@@ -7,7 +6,7 @@ from .schemas import DebtCreateSchema, DebtPaymentCreateSchema
 
 class DebtRepository:
 
-    def __init__(self, db: db_dependency):
+    def __init__(self, db: Session):
         self.db = db
         self.settings = get_settings()
 
@@ -69,7 +68,7 @@ class DebtRepository:
 
 class DebtPaymentRepository:
 
-    def __init__(self, db: db_dependency):
+    def __init__(self, db: Session):
         self.db = db
         self.settings = get_settings()
 

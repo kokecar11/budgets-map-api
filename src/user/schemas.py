@@ -15,12 +15,26 @@ class UserSignInSchema(BaseModel):
     password: str
 
 
+class UserResetPasswordSchema(BaseModel):
+    email: str
+
+
+class UserUpdatePasswordSchema(BaseModel):
+    password: str
+
+
 class SignInResponseSchema(BaseModel):
+    id: str
+    email: str
     access_token: str
     refresh_token: str
     expires_in: int
     expires_at: int
     token_type: str
+
+
+class RefreshSessionSchema(SignInResponseSchema):
+    pass
 
 
 class SignOutSchema(BaseModel):

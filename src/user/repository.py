@@ -1,6 +1,4 @@
-from supabase import create_client
-from fastapi import Depends
-from src.dependecies import db_dependency
+from sqlalchemy.orm import Session
 from src.settings import get_settings
 from .models import UserModel
 from .schemas import UserCreateSchema
@@ -8,7 +6,7 @@ from .schemas import UserCreateSchema
 
 class UserRepository:
 
-    def __init__(self, db: db_dependency):
+    def __init__(self, db: Session):
         self.db = db
         self.settings = get_settings()
 

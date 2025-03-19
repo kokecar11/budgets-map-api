@@ -2,7 +2,7 @@ import json
 from fastapi import APIRouter
 from .service import AIService
 from .schemas import PostHumanQueryPayload, PostHumanQueryResponse
-from src.dependecies import db_dependency
+from src.dependencies import db_dependency
 
 AIRouter = APIRouter()
 

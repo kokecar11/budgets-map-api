@@ -51,6 +51,13 @@ class DebtResponseSchema(BaseModel):
         from_attributes = True
 
 
+class DebtsResponseSchema(BaseModel):
+    debts: List[DebtDetailSchema]
+
+    class Config:
+        from_attributes = True
+
+
 class DebtPaymentCreateSchema(BaseModel):
     debt_id: str
     budget_id: str
@@ -66,6 +73,13 @@ class DebtPaymentCreateSchema(BaseModel):
 
 class DebtPaymentResponseSchema(BaseModel):
     debt_payment: DebtPaymentDetailSchema
+
+    class Config:
+        from_attributes = True
+
+
+class DebtPaymentsResponseSchema(BaseModel):
+    debt_payments: List[DebtPaymentDetailSchema]
 
     class Config:
         from_attributes = True

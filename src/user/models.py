@@ -1,5 +1,5 @@
-from datetime import datetime
-from sqlalchemy import Column, String, DateTime
+import datetime
+from sqlalchemy import Column, String, DateTime, event
 from sqlalchemy.orm import relationship
 from src.database import Base
 
@@ -13,8 +13,12 @@ class UserModel(Base):
     email = Column(String, unique=True, index=True)
     email_verified = Column(DateTime, nullable=True)
     image = Column(String, nullable=True)
-    created_at = Column(DateTime, nullable=True, default=datetime.now())
-    # accounts = relationship("AccountModel", back_populates="user")
-    # sessions = relationship("SessionModel", back_populates="user")
+    created_at = Column(DateTime, nullable=True)
+    deleted_at = Column(DateTime, nullable=True)
+
     budgets = relationship("BudgetModel", back_populates="user")
-    debts = relationship("DebtModel", back_populates="user")
+
+
+@event.listens_for(UserModel, "before_insert")
+def set_created_at(mapper, connection, target):
+    target.created_at = datetime.datetime.now(datetime.timezone.utc)

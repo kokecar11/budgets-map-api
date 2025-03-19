@@ -2,10 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.settings import Settings
 from src.ai.route import AIRouter
-from src.debt.route import DebtRouter
-from src.transaction.route import TransactionRouter
-from src.budget.route import BudgetRouter
-from src.user.route import AuthRouter
+from src.user.router import AuthRouter
+from src.debt.router import DebtRouter
+from src.transaction.router import TransactionRouter
+from src.budget.router import BudgetRouter
+from src.income.router import IncomeRouter
 
 settings = Settings()
 
@@ -29,3 +30,4 @@ app.include_router(AIRouter, prefix="/api/v1", tags=["IA"])
 app.include_router(DebtRouter, prefix="/api/v1", tags=["Debts"])
 app.include_router(BudgetRouter, prefix="/api/v1", tags=["Budgets"])
 app.include_router(TransactionRouter, prefix="/api/v1", tags=["Transactions"])
+app.include_router(IncomeRouter, prefix="/api/v1", tags=["Incomes"])
