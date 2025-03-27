@@ -1,5 +1,8 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session, selectinload
 from src.settings import get_settings
+from src.budget.models import BudgetTransactionModel, BudgetModel
+from src.transaction.models import TransactionModel
 from .models import DebtModel, DebtPaymentModel
 from .schemas import DebtCreateSchema, DebtPaymentCreateSchema
 
@@ -19,7 +22,38 @@ class DebtRepository:
         )
 
     async def get_debts_by_user_id(self, user_id: str) -> dict:
-        return self.db.query(DebtModel).filter(DebtModel.user_id == user_id).all()
+        payment_count_subq = (
+            self.db.query(
+                DebtPaymentModel.debt_id,
+                func.count(DebtPaymentModel.id).label("paid_installments"),
+                func.sum(DebtPaymentModel.amount_paid).label("total_paid"),
+            )
+            .group_by(DebtPaymentModel.debt_id)
+            .subquery()
+        )
+
+        query = (
+            self.db.query(
+                DebtModel,
+                func.coalesce(payment_count_subq.c.paid_installments, 0).label(
+                    "paid_installments"
+                ),
+                func.coalesce(payment_count_subq.c.total_paid, 0).label("total_paid"),
+            )
+            .outerjoin(
+                payment_count_subq,
+                DebtModel.id == payment_count_subq.c.debt_id,
+            )
+            .outerjoin(
+                BudgetTransactionModel,
+                DebtModel.id == BudgetTransactionModel.transaction_id,
+            )
+            .outerjoin(BudgetModel, BudgetTransactionModel.budget_id == BudgetModel.id)
+            .filter(DebtModel.user_id == user_id)
+            .distinct()
+        )
+        results = query.all()
+        return results
 
     async def get_debts_by_user_id_and_status(self, user_id: str, status: str) -> dict:
         return (

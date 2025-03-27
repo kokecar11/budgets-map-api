@@ -17,6 +17,7 @@ class UserModel(Base):
     deleted_at = Column(DateTime, nullable=True)
 
     budgets = relationship("BudgetModel", back_populates="user")
+    debts = relationship("DebtModel", back_populates="user")
 
 
 @event.listens_for(UserModel, "before_insert")

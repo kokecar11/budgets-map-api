@@ -30,7 +30,7 @@ class TransactionRepository:
             (IncomeAlias.id != None, "Income"),
             (SavingAlias.id != None, "Saving"),
             (ExpenseAlias.id != None, "Expense"),
-            (DebtPaymentAlias.id != None, "Pago de Deuda"),
+            (DebtPaymentAlias.id != None, "DebtPayment"),
             else_="Otro",
         )
 
@@ -56,7 +56,7 @@ class TransactionRepository:
             .order_by(TransactionModel.created_at.desc())
         )
 
-        return query.limit(15).all()
+        return query.all()
 
     async def get_summary_by_user_id(self, user_id: str):
         current_month = func.date_trunc("month", func.now())

@@ -1,6 +1,6 @@
 from src.exceptions import BadRequestError, NotFoundError
 from src.budget.services import BudgetService
-from src.budget.schemas import BudgetCreateSchema, BudgetTransactionCreateSchema
+from src.budget.schemas import BudgetTransactionCreateSchema
 from src.income.services import IncomeService
 from src.income.schemas import IncomeCreateSchema
 from src.expense.services import ExpenseService
@@ -101,15 +101,34 @@ class TransactionService:
             saving=ValueSchema(current_month=0, previous_month=0),
         )
 
-    async def create_transaction(self, transaction: TransactionCreateSchema) -> dict:
+    async def create_transaction(
+        self, transaction: TransactionCreateSchema, user_id: str
+    ) -> dict:
+        budgets_this_month = await self.budget_service.count_budgets_in_date_range(
+            user_id
+        )
+        budgets = []
+        if len(budgets_this_month) < 3:
+            new_budgets = await self.budget_service.auto_create_budget(user_id)
+            budgets = new_budgets["budgets"]
+        else:
+            budgets = budgets_this_month
         new_transaction = await self.transaction_repository.create_transaction(
             transaction
         )
-        return {
-            "transaction": TransactionDetailSchema.model_validate(
-                new_transaction
-            ).model_dump()
-        }
+        budget_transaction = [
+            BudgetTransactionCreateSchema(
+                budget_id=budget.id,
+                transaction_id=new_transaction.id,
+                amount=transaction.amount,
+            )
+            for budget in budgets
+        ]
+        for budget in budget_transaction:
+            await self.budget_service.create_budget_transaction(budget)
+        return TransactionResponseSchema(
+            transaction=TransactionDetailSchema.model_validate(new_transaction)
+        )
 
     async def create_transaction_v2(
         self, transaction: TransactionCreateSchema, user_id: str

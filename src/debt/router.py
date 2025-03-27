@@ -53,7 +53,9 @@ async def create_debt_payment(
     current_user: auth_dependency,
     debt_payment_service: DebtPaymentService = Depends(get_debt_payment_service),
 ):
-    return await debt_payment_service.create_debt_payment(new_debt_payment)
+    return await debt_payment_service.create_debt_payment(
+        new_debt_payment, current_user.id
+    )
 
 
 @DebtRouter.get(

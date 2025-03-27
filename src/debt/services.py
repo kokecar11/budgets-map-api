@@ -1,5 +1,5 @@
 from src.exceptions import NotFoundError
-from src.transaction.repository import TransactionRepository
+from src.transaction.services import TransactionService
 from src.transaction.schemas import TransactionCreateSchema
 from .repository import DebtRepository, DebtPaymentRepository
 from .schemas import (
@@ -29,7 +29,26 @@ class DebtService:
         if not debts:
             return DebtsResponseSchema(debts=[])
         return DebtsResponseSchema(
-            debts=[DebtDetailSchema.model_validate(debt) for debt in debts]
+            debts=[
+                DebtDetailSchema(
+                    id=debt.id,
+                    amount=debt.amount,
+                    due_date=debt.due_date,
+                    minimum_payment=debt.minimum_payment,
+                    status=debt.status,
+                    creditor=debt.creditor,
+                    description=debt.description,
+                    installment_count=debt.installment_count,
+                    total_paid=total_paid,
+                    paid_installments=paid_installments,
+                    next_payment_date=debt.next_payment_date,
+                    estimated_completion_date=debt.estimated_completion_date,
+                    interest_rate=debt.interest_rate,
+                    payment_frequency=debt.payment_frequency,
+                    debt_payments=[],
+                )
+                for debt, paid_installments, total_paid in debts
+            ]
         )
 
     async def get_debts_by_user_id_and_status(self, user_id: str, status: str) -> dict:
@@ -63,10 +82,10 @@ class DebtPaymentService:
     def __init__(
         self,
         debt_payment_repository: DebtPaymentRepository,
-        transaction_repository: TransactionRepository,
+        transaction_service: TransactionService,
     ):
         self.debt_payment_repository = debt_payment_repository
-        self.transaction_repository = transaction_repository
+        self.transaction_service = transaction_service
 
     async def get_debt_payment_by_id(self, debt_payment_id: str) -> dict:
         debt_payment = await self.debt_payment_repository.get_debt_payment_by_id(
@@ -91,16 +110,21 @@ class DebtPaymentService:
             ]
         )
 
-    async def create_debt_payment(self, debt_payment: DebtPaymentCreateSchema) -> dict:
+    async def create_debt_payment(
+        self, debt_payment: DebtPaymentCreateSchema, user_id: str
+    ) -> dict:
         transaction = TransactionCreateSchema(
-            budget_id=debt_payment.budget_id,
             amount=debt_payment.amount_paid,
-            transaction_date=debt_payment.payment_date,
             category="Debt Payment",
-            description="Debt Payment",
+            description=debt_payment.description,
+            type="debt",
         )
-        transaction = await self.transaction_repository.create_transaction(transaction)
+        new_transaction = await self.transaction_service.create_transaction(
+            transaction, user_id
+        )
         debt_payment = await self.debt_payment_repository.create_debt_payment(
-            debt_payment, transaction.id
+            debt_payment, new_transaction.transaction.id
         )
-        return debt_payment
+        return DebtPaymentResponseSchema(
+            debt_payment=DebtPaymentDetailSchema.model_validate(debt_payment)
+        )

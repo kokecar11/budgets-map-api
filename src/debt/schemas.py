@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
 from typing import List, Optional
-from .models import DebtStatus
+from .models import DebtStatus, PaymentFrequency
 
 
 class DebtCreateSchema(BaseModel):
@@ -12,6 +12,8 @@ class DebtCreateSchema(BaseModel):
     status: DebtStatus
     installment_count: int
     minimum_payment: float
+    interest_rate: float
+    payment_frequency: Optional[PaymentFrequency] = PaymentFrequency.MONTHLY
 
     class Config:
         from_attributes = True
@@ -24,6 +26,8 @@ class DebtPaymentDetailSchema(BaseModel):
     payment_date: Optional[datetime]
     status: DebtStatus
     installment_number: int
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
     class Config:
         from_attributes = True
@@ -38,6 +42,12 @@ class DebtDetailSchema(BaseModel):
     creditor: str
     description: Optional[str]
     installment_count: int
+    total_paid: Optional[float]
+    paid_installments: Optional[int]
+    next_payment_date: Optional[datetime]
+    estimated_completion_date: Optional[datetime]
+    interest_rate: float
+    payment_frequency: Optional[PaymentFrequency]
     debt_payments: Optional[List[DebtPaymentDetailSchema]]
 
     class Config:
@@ -60,11 +70,10 @@ class DebtsResponseSchema(BaseModel):
 
 class DebtPaymentCreateSchema(BaseModel):
     debt_id: str
-    budget_id: str
-    amount_paid: float
     payment_date: datetime
-    installment_number: int
     amount_paid: float
+    installment_number: int
+    description: Optional[str] = None
     status: DebtStatus
 
     class Config:
