@@ -4,7 +4,7 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     app_name: str = "Budgets Map API"
-    version: str = "0.1.0"
+    version: str = "0.1.0-beta"
     HOST: str
     DATABASE_URL: str
     ALLOWED_HOSTS: list[str]
