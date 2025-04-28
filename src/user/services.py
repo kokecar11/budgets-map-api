@@ -57,7 +57,8 @@ class AuthService:
 
     async def sign_in(self, user: UserSignInSchema):
         try:
-            await self.user_service.get_user_by_email(user.email)
+            user_by_email = await self.user_service.get_user_by_email(user.email)
+            print(user_by_email.fullname)
             response = self.supabase.auth.sign_in_with_password(
                 {
                     "email": user.email,
@@ -67,6 +68,8 @@ class AuthService:
             response = SignInResponseSchema(
                 id=response.model_dump().get("user")["id"],
                 email=response.model_dump().get("user")["email"],
+                fullname=user_by_email.fullname,
+                image=user_by_email.image,
                 access_token=response.model_dump().get("session")["access_token"],
                 refresh_token=response.model_dump().get("session")["refresh_token"],
                 expires_in=response.model_dump().get("session")["expires_in"],

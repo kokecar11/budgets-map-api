@@ -56,8 +56,12 @@ class BudgetService:
                     description=budget.description,
                     type=budget.type,
                     total_income=budget.total_income,
-                    total_spent=(budget.total_expense),
-                    total_remaining=(budget.total_income - budget.total_expense),
+                    total_spent=(budget.total_expense + budget.total_debt_payment),
+                    total_remaining=(
+                        budget.total_income
+                        - budget.total_expense
+                        - budget.total_debt_payment
+                    ),
                     percent_spent=((budget.total_expense) / budget.total_income) * 100,
                     created_at=budget.created_at,
                     updated_at=budget.updated_at,

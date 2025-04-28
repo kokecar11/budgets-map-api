@@ -21,7 +21,6 @@ class BudgetDetailSchema(BudgetCreateSchema):
     total_income: Optional[float] = None
     total_remaining: Optional[float] = None
     created_at: datetime
-    updated_at: datetime
     updated_at: Optional[datetime] = None
 
     class Config:

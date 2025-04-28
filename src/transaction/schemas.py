@@ -50,6 +50,7 @@ class SummaryResponseSchema(BaseModel):
     income: ValueSchema
     expense: Optional[ValueSchema]
     saving: Optional[ValueSchema]
+    debt: Optional[ValueSchema]
 
     class Config:
         from_attributes = True

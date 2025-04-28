@@ -26,6 +26,8 @@ class UserUpdatePasswordSchema(BaseModel):
 class SignInResponseSchema(BaseModel):
     id: str
     email: str
+    fullname: str
+    image: Optional[str] = None
     access_token: str
     refresh_token: str
     expires_in: int

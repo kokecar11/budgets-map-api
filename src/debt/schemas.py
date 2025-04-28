@@ -11,7 +11,6 @@ class DebtCreateSchema(BaseModel):
     due_date: datetime
     status: DebtStatus
     installment_count: int
-    minimum_payment: float
     interest_rate: float
     payment_frequency: Optional[PaymentFrequency] = PaymentFrequency.MONTHLY
 

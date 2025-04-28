@@ -72,6 +72,22 @@ class DebtRepository:
         )
 
     async def create_debt(self, debt: DebtCreateSchema, user_id: str) -> dict:
+        minimum_payment = 0
+        if debt.installment_count > 0:
+            if hasattr(debt, "interest_rate") and debt.interest_rate:
+                interest_decimal = debt.interest_rate / 100
+                monthly_rate = interest_decimal / 12
+                if monthly_rate > 0:
+                    minimum_payment = (monthly_rate * debt.amount) / (
+                        1 - (1 + monthly_rate) ** -debt.installment_count
+                    )
+                else:
+                    minimum_payment = debt.amount / debt.installment_count
+            else:
+                minimum_payment = debt.amount / debt.installment_count
+        else:
+            minimum_payment = debt.amount
+
         new_debt = DebtModel(
             user_id=user_id,
             creditor=debt.creditor,
@@ -80,7 +96,7 @@ class DebtRepository:
             due_date=debt.due_date,
             status=debt.status,
             installment_count=debt.installment_count,
-            minimum_payment=debt.minimum_payment,
+            minimum_payment=minimum_payment,
         )
         self.db.add(new_debt)
         self.db.commit()

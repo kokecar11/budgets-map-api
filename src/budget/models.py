@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import Column, ForeignKey, Float, String, DateTime, event
+from sqlalchemy import Column, ForeignKey, Float, String, DateTime, event, func
 from sqlalchemy.orm import relationship
 from src.config import generate_uuid
 from src.database import Base
@@ -15,7 +15,7 @@ class BudgetModel(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
     type = Column(String, nullable=False, default="Balanced")
-    created_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=True, server_default=func.now())
     updated_at = Column(DateTime, nullable=True)
     deleted_at = Column(DateTime, nullable=True)
 

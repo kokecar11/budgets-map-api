@@ -42,7 +42,7 @@ class BudgetRepository:
         transaction_type_case = case(
             (IncomeAlias.id != None, "Income"),
             (ExpenseAlias.id != None, "Expense"),
-            (DebtPaymentAlias.id != None, "Debt"),
+            (DebtPaymentAlias.id != None, "DebtPayment"),
             (DebtAlias.id != None, "Debt"),
             else_="Other",
         )
@@ -88,6 +88,15 @@ class BudgetRepository:
                         else_=0,
                     )
                 ).label("total_saving"),
+                func.sum(
+                    case(
+                        (
+                            transaction_type_case == "DebtPayment",
+                            BudgetTransactionModel.amount,
+                        ),
+                        else_=0,
+                    )
+                ).label("total_debt_payment"),
             )
             .outerjoin(
                 TransactionModel,
@@ -215,6 +224,7 @@ class BudgetRepository:
     async def bulk_budgets(self, budgets: list, user_id: str):
         new_budgets = [
             BudgetModel(
+                # TODO: Revisar si es necesario el id
                 user_id=user_id,
                 name=budget.name,
                 description=budget.description,

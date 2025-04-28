@@ -61,14 +61,15 @@ class TransactionService:
         )
 
     async def get_summary_by_user_id(self, user_id: str) -> dict:
-        income, expense = await self.transaction_repository.get_summary_by_user_id(
-            user_id
+        income, expense, debt = (
+            await self.transaction_repository.get_summary_by_user_id(user_id)
         )
-        if not income and not expense:
+        if not income and not expense and not debt:
             return SummaryResponseSchema(
                 income=ValueSchema(current_month=0, previous_month=0),
                 expense=ValueSchema(current_month=0, previous_month=0),
                 saving=ValueSchema(current_month=0, previous_month=0),
+                debt=ValueSchema(current_month=0, previous_month=0),
             )
 
         current_month_income = income.current_month_income or 0
@@ -87,6 +88,15 @@ class TransactionService:
             if previous_month_expense > 0
             else 0
         )
+        current_month_debt = debt.current_month_debt or 0
+        previous_month_debt = debt.previous_month_debt or 0
+        growth_debt = (
+            ((current_month_debt - previous_month_debt) / previous_month_debt) * 100
+            if previous_month_debt > 0
+            else 0
+        )
+        current_month_saving = 0
+        previous_month_saving = 0
         return SummaryResponseSchema(
             income=ValueSchema(
                 current_month=current_month_income,
@@ -99,6 +109,11 @@ class TransactionService:
                 growth=growth_expense,
             ),
             saving=ValueSchema(current_month=0, previous_month=0),
+            debt=ValueSchema(
+                current_month=current_month_debt,
+                previous_month=previous_month_debt,
+                growth=growth_debt,
+            ),
         )
 
     async def create_transaction(

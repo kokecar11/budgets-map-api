@@ -1,7 +1,7 @@
 from sqlalchemy import select, case, func, text
 from sqlalchemy.orm import aliased, contains_eager, joinedload, Session
 from src.budget.models import BudgetModel, BudgetTransactionModel
-from src.debt.models import DebtPaymentModel
+from src.debt.models import DebtPaymentModel, DebtModel
 from src.income.models import IncomeModel
 from src.saving.models import SavingModel
 from src.expense.models import ExpenseModel
@@ -123,9 +123,32 @@ class TransactionRepository:
             .filter(BudgetModel.user_id == user_id, BudgetModel.type == "Balanced")
         )
 
+        debt_query = select(
+            func.sum(
+                case(
+                    (
+                        DebtModel.created_at >= current_month,
+                        DebtModel.amount,
+                    ),
+                    else_=0,
+                )
+            ).label("current_month_debt"),
+            func.sum(
+                case(
+                    (
+                        (DebtModel.created_at >= previous_month)
+                        & (DebtModel.created_at < current_month),
+                        DebtModel.amount,
+                    ),
+                    else_=0,
+                )
+            ).label("previous_month_debt"),
+        ).filter(DebtModel.user_id == user_id)
+
         income = income_query.first()
         expense = expense_query.first()
-        return income, expense
+        debt = self.db.execute(debt_query).first()
+        return income, expense, debt
 
     async def create_transaction(self, transaction: TransactionCreateSchema):
         new_transaction = TransactionModel(
