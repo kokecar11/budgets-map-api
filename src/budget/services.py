@@ -62,7 +62,11 @@ class BudgetService:
                         - budget.total_expense
                         - budget.total_debt_payment
                     ),
-                    percent_spent=((budget.total_expense) / budget.total_income) * 100,
+                    percent_spent=(
+                        ((budget.total_expense) / budget.total_income) * 100
+                        if budget.total_income != 0
+                        else 0
+                    ),
                     created_at=budget.created_at,
                     updated_at=budget.updated_at,
                 )
@@ -89,9 +93,6 @@ class BudgetService:
         )
 
     async def auto_create_budget(self, user_id: str) -> dict:
-        # next_month = (datetime.datetime.now() + datetime.timedelta(days=30)).strftime(
-        #     "%B %Y"
-        # )
         current_month = datetime.datetime.now().strftime("%B %Y")
         type_budgets = ["Balanced", "Saving", "Debt"]
         data_budgets = [
@@ -134,24 +135,3 @@ class BudgetService:
         return BudgetResponseSchema(
             budget=BudgetTransactionsDetailSchema.model_validate(updated_budget)
         )
-
-    # TODO: Implementar la creación automática de presupuestos
-    # from apscheduler.schedulers.background import BackgroundScheduler
-    # def start_auto_create_budget(self, user_id: str):
-    #     if user_id not in self.jobs:
-    #         job = self.scheduler.add_job(self.create_next_month_budget, 'cron', month='1-12', day=1, hour=0, minute=0, args=[user_id])
-    #         self.jobs[user_id] = job
-    #         self.scheduler.start()
-    #         # Actualiza el estado en la base de datos
-    #         user = self.db.query(UserModel).filter(UserModel.id == user_id).first()
-    #         user.auto_create_budget = True
-    #         self.db.commit()
-
-    # def stop_auto_create_budget(self, user_id: str):
-    #     if user_id in self.jobs:
-    #         self.jobs[user_id].remove()
-    #         del self.jobs[user_id]
-    #         # Actualiza el estado en la base de datos
-    #         user = self.db.query(UserModel).filter(UserModel.id == user_id).first()
-    #         user.auto_create_budget = False
-    #         self.db.commit()
