@@ -25,6 +25,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
+
 app.include_router(AuthRouter, prefix="/api/v1", tags=["Authentication"])
 app.include_router(AIRouter, prefix="/api/v1", tags=["IA"])
 app.include_router(DebtRouter, prefix="/api/v1", tags=["Debts"])

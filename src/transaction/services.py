@@ -74,29 +74,45 @@ class TransactionService:
 
         current_month_income = income.current_month_income or 0
         previous_month_income = income.previous_month_income or 0
-        growth_income = (
-            ((current_month_income - previous_month_income) / previous_month_income)
-            * 100
-            if previous_month_income > 0
-            else 0
-        )
+        growth_income = 0
+        if previous_month_income != 0:
+            growth_income = (
+                (current_month_income - previous_month_income) / previous_month_income
+            ) * 100
+        elif current_month_income > 0:
+            growth_income = 100
+
         current_month_expense = expense.current_month_expense or 0
         previous_month_expense = expense.previous_month_expense or 0
-        growth_expense = (
-            ((current_month_expense - previous_month_expense) / previous_month_expense)
-            * 100
-            if previous_month_expense > 0
-            else 0
-        )
+        growth_expense = 0
+        if previous_month_expense != 0:
+            growth_expense = (
+                (current_month_expense - previous_month_expense)
+                / previous_month_expense
+            ) * 100
+        elif current_month_expense > 0:
+            growth_expense = 100
+
         current_month_debt = debt.current_month_debt or 0
         previous_month_debt = debt.previous_month_debt or 0
-        growth_debt = (
-            ((current_month_debt - previous_month_debt) / previous_month_debt) * 100
-            if previous_month_debt > 0
-            else 0
-        )
-        current_month_saving = 0
-        previous_month_saving = 0
+        growth_debt = 0
+        if previous_month_debt != 0:
+            growth_debt = (
+                (current_month_debt - previous_month_debt) / previous_month_debt
+            ) * 100
+        elif current_month_debt > 0:
+            growth_debt = 100
+
+        current_month_saving = current_month_income - current_month_expense
+        previous_month_saving = previous_month_income - previous_month_expense
+        growth_saving = 0
+        if previous_month_saving != 0:
+            growth_saving = (
+                (current_month_saving - previous_month_saving)
+                / abs(previous_month_saving)
+            ) * 100
+        elif current_month_saving > 0:
+            growth_saving = 100
         return SummaryResponseSchema(
             income=ValueSchema(
                 current_month=current_month_income,
@@ -108,7 +124,11 @@ class TransactionService:
                 previous_month=previous_month_expense,
                 growth=growth_expense,
             ),
-            saving=ValueSchema(current_month=0, previous_month=0),
+            saving=ValueSchema(
+                current_month=current_month_saving,
+                previous_month=previous_month_saving,
+                growth=growth_saving,
+            ),
             debt=ValueSchema(
                 current_month=current_month_debt,
                 previous_month=previous_month_debt,
@@ -154,7 +174,7 @@ class TransactionService:
         budgets = []
         if len(budgets_this_month) < 3:
             new_budgets = await self.budget_service.auto_create_budget(user_id)
-            budgets = new_budgets["budgets"]
+            budgets = new_budgets.budgets if hasattr(new_budgets, "budgets") else []
         else:
             budgets = budgets_this_month
 
@@ -179,6 +199,7 @@ class TransactionService:
                 amount=transaction.amount,
                 description=transaction.description,
             )
+
             await self.expense_service.create_expense(expense)
         else:
             raise BadRequestError("Invalid transaction type")

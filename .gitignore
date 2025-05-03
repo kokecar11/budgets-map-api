@@ -26,5 +26,3 @@ node_modules/
 /venv
 
 **/__pycache__/
-
-budgets_migrations/versions/

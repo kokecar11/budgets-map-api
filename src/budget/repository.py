@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from sqlalchemy.orm import Session
 from sqlalchemy import select, case, func
 from sqlalchemy.orm import aliased
@@ -222,13 +223,15 @@ class BudgetRepository:
         return await self.get_budget(budget_id)
 
     async def bulk_budgets(self, budgets: list, user_id: str):
+        current_time = datetime.datetime.now(datetime.timezone.utc)
         new_budgets = [
             BudgetModel(
-                # TODO: Revisar si es necesario el id
+                id=str(uuid.uuid4()),
                 user_id=user_id,
                 name=budget.name,
                 description=budget.description,
                 type=budget.type,
+                created_at=current_time,
             )
             for budget in budgets
         ]
