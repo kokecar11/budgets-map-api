@@ -8,6 +8,7 @@ class BudgetCreateSchema(BaseModel):
     name: str
     description: Optional[str] = None
     type: Optional[str] = None
+    recommendation: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -45,8 +46,8 @@ class BudgetTransactionsDetailSchema(BudgetDetailSchema):
 
 class BudgetUpdateSchema(BaseModel):
     name: Optional[str] = None
-    total_amount: Optional[float] = None
     description: Optional[str] = None
+    recommendation: Optional[str] = None
 
     class Config:
         from_attributes = True

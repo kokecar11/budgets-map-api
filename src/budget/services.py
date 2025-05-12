@@ -38,8 +38,6 @@ class BudgetService:
         budgets = await self.budget_repository.get_budgets()
         if not budgets:
             return BudgetsResponseSchema(budgets=[])
-        for b in budgets:
-            print(b)
         return BudgetsResponseSchema(
             budgets=[BudgetDetailSchema.model_validate(budget) for budget in budgets]
         )
@@ -54,6 +52,7 @@ class BudgetService:
                     id=budget.id,
                     name=budget.name,
                     description=budget.description,
+                    recommendation=budget.recommendation,
                     type=budget.type,
                     total_income=budget.total_income,
                     total_spent=(budget.total_expense + budget.total_debt_payment),
@@ -94,14 +93,34 @@ class BudgetService:
 
     async def auto_create_budget(self, user_id: str) -> dict:
         current_month = datetime.datetime.now().strftime("%B %Y")
-        type_budgets = ["Balanced", "Saving", "Debt"]
+        static_budgets = [
+            {
+                "name": f"Budget for {current_month}",
+                "description": f"{current_month} Spending Summary",
+                "recommendation": "Keep a balance between spending, saving, and paying off debt.",
+                "type": "Balanced",
+            },
+            {
+                "name": f"Budget for {current_month}",
+                "description": f"{current_month} Spending Summary",
+                "recommendation": "Boost your savings by tightly controlling your expenses.",
+                "type": "Saving",
+            },
+            {
+                "name": f"Budget for {current_month}",
+                "description": f"{current_month} Spending Summary",
+                "recommendation": "Prioritize paying off debt without neglecting essentials.",
+                "type": "Debt",
+            },
+        ]
         data_budgets = [
             BudgetCreateSchema(
-                name="Budget for " + current_month,
-                type=type,
-                description=f"{current_month} Spending Summary",
+                name=b.get("name"),
+                type=b.get("type"),
+                description=b.get("description"),
+                recommendation=b.get("recommendation"),
             )
-            for type in type_budgets
+            for b in static_budgets
         ]
         new_budgets = await self.budget_repository.bulk_budgets(data_budgets, user_id)
         return BudgetsResponseSchema(
@@ -123,15 +142,11 @@ class BudgetService:
 
     async def update_budget(self, budget_id: str, budget: BudgetUpdateSchema) -> dict:
         update_data = budget.model_dump(exclude_unset=True)
+        if not update_data:
+            raise BadRequestError("No data to update")
         updated_budget = await self.budget_repository.update_budget(
             budget_id, update_data
         )
-        total_spent = sum(
-            transaction.amount for transaction in updated_budget.transactions
-        )
-        percent_spent = (total_spent / updated_budget.total_amount) * 100
-        updated_budget.total_spent = total_spent
-        updated_budget.percent_spent = percent_spent
         return BudgetResponseSchema(
             budget=BudgetTransactionsDetailSchema.model_validate(updated_budget)
         )

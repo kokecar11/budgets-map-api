@@ -103,8 +103,8 @@ class TransactionService:
         elif current_month_debt > 0:
             growth_debt = 100
 
-        current_month_saving = current_month_income - current_month_expense
-        previous_month_saving = previous_month_income - previous_month_expense
+        current_month_saving = 0
+        previous_month_saving = 0
         growth_saving = 0
         if previous_month_saving != 0:
             growth_saving = (

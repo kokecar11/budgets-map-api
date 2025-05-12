@@ -60,6 +60,7 @@ class BudgetRepository:
                 BudgetModel.type,
                 BudgetModel.name,
                 BudgetModel.description,
+                BudgetModel.recommendation,
                 BudgetModel.created_at,
                 BudgetModel.updated_at,
                 func.sum(
@@ -117,6 +118,7 @@ class BudgetRepository:
                 BudgetModel.name,
                 BudgetModel.created_at,
                 BudgetModel.description,
+                BudgetModel.recommendation,
             )
         )
         return self.db.execute(query).fetchall()
@@ -230,6 +232,7 @@ class BudgetRepository:
                 user_id=user_id,
                 name=budget.name,
                 description=budget.description,
+                recommendation=budget.recommendation,
                 type=budget.type,
                 created_at=current_time,
             )
