@@ -33,7 +33,6 @@ class UserService:
         return user is not None
 
     async def create_user(self, user: UserCreateSchema):
-        print(user.email)
         existing_user = await self.user_repository.get_user_by_email(user.email)
         if existing_user:
             raise HTTPException(
@@ -58,7 +57,6 @@ class AuthService:
     async def sign_in(self, user: UserSignInSchema):
         try:
             user_by_email = await self.user_service.get_user_by_email(user.email)
-            print(user_by_email.fullname)
             response = self.supabase.auth.sign_in_with_password(
                 {
                     "email": user.email,
@@ -132,7 +130,6 @@ class AuthService:
             }
         )
 
-        print(updated_password)
         return {"message": "Password updated"}
 
     async def sign_out(self, token: str):

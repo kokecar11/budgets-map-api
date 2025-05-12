@@ -15,6 +15,7 @@ class BudgetModel(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
     type = Column(String, nullable=False, default="Balanced")
+    recommendation = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=True, server_default=func.now())
     updated_at = Column(DateTime, nullable=True)
     deleted_at = Column(DateTime, nullable=True)
